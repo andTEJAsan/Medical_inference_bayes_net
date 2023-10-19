@@ -7,8 +7,13 @@ class BayesNet {
 	int num_edges;
 	// vector<vector<double>> cpt
 	vector<vector<int>> adj;
-	vector<vector<float>> cpt;
+	vector<vector<float>> cpt; 
+	// domain size of ith variable : n[i]
 	vector<int> domain_size;
+	// number of parents of ith variable : c[i]
+	// node_to_parent int,int -> int
+
+
 	unordered_map<node,string> node_to_str;
 	unordered_map<string,node> str_to_node;
 	vector<node> top_order_to_node;
