@@ -4,7 +4,7 @@
 // Bayesian network 
 network "Alarm" { //37 variables and 37 probability distributions
 }
-variable  "Hypovolemia" { //2 values
+variable  "Hypovolemia" { //2 values hello
 	type discrete[2] {  "True"  "False" };
 	property "position = (54, 35)" ;
 }
