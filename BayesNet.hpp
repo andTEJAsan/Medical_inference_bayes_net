@@ -14,6 +14,7 @@ class BayesNet {
 	int num_edges = 0;
 	unordered_map<string,int> id; // id of each Node
 	// vector<vector<double>> cpt
+	vector<string> name;
 	vector<vector<int>> adj;
 	vector<vector<float>> cpt; 
 	// domain size of ith variable : n[i]
@@ -68,7 +69,8 @@ void BayesNet::read_network(string filename){
 			string second;
 			ss >> second;
 			string varname = second.substr(1,second.size()-2);
-			id[second] = total_nodes; 
+			name.push_back(varname);
+			id[varname] = total_nodes; 
 			getline(fin,line);
 			ss.clear();
 			ss.str(line);
@@ -104,6 +106,7 @@ void BayesNet::read_network(string filename){
 			child = child.substr(1,child.size()-2);	
 			int child_node = id[child];
 			cout << child << "\n";
+			cout << "getting parents of " << child  << "\n";
 			while(true)	
 			{
 				bool eos_found=false;
@@ -123,18 +126,41 @@ void BayesNet::read_network(string filename){
 				string parent;
 				ss >> parent;
 				parent.pop_back();
+				cout << "parent name " << parent << "\n";
 				int parent_node = id[parent];
+				cout << "parent_node " << parent_node << "\n";
 				// add child to the out-adj list of 
-				adj[parent_node].push_back(child_node);
+				adj[child_node].push_back(parent_node);
 			}
 			// computing size of cpt[child_node] = Pi
 			int cpt_size = nv[child_node];
-			for(auto parent : adj[child_node]) cpt_size *= nv[parent];
+			for(auto parent : adj[child_node]) {
+				cout << "in the adj list " << name[parent];
+				cpt_size *= nv[parent];
+			}
 			cpt[child_node].resize(cpt_size);
+			getline(fin,line);
+			ss.clear();
+			ss.str(line);
+			string dummy;
+			ss >> dummy;
+			cout << "cpt for " << child << "\n";
+			cout << "cpt size " << cpt_size << "\n";
+			for(int i = 0 ; i < cpt_size; i++)
+			{
+				string cpt_string;
+				ss >> cpt_string;
+				cout << "cpt_string " << cpt_string << "\n";
+				float cpt_entry = stof(cpt_string);
+				cpt[child_node][i] = cpt_entry;
+				cout << " cpt entry " << cpt_entry << "\n";
+			}
+
 			
 		}
 
 	}
+	
 };
 
 
