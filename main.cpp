@@ -46,6 +46,20 @@ void compute_dist_gibbs_sampling(BayesNet& bn, vector<int>& values, int node, ve
 }
 
 
+// update record_number'th record in data based on current weights
+void recompute_weights(BayesNet& bn, vector<vector<int>>& data, vector<int>& unknown_weights, vector<vector<float>>& weights, int record_number){
+	compute_dist_gibbs_sampling(bn, data[record_number], unknown_weights[record_number], weights[record_number]);
+}
+
+void compute_data_given_weights(BayesNet& bn, vector<vector<int>>& data, vector<int>& unknown_weights, vector<vector<float>>& weights){
+	for(int i = 0; i < data.size(); i++){
+		if(unknown_weights[i] == -1) continue;
+		recompute_weights(bn, data, unknown_weights, weights ,i);
+	}
+}
+
+
+
 int main()
 {
 	BayesNet bn;
@@ -55,13 +69,16 @@ int main()
 
 	vector<vector<int>> data;
 	vector<int> unknownData; // record number to the unknown field value, the position of the question mark
+	vector<vector<float>> dataWeights;
 
 	// take data input
 	ifstream dataInput("records.dat");
 	string line;
 	vector<int> emptyVector;
+	vector<float> emptyVectorFloat;
 	while(getline(dataInput, line)){
 		data.push_back(emptyVector);
+		dataWeights.push_back(emptyVectorFloat);
 		stringstream ss(line);
 		string word;
 
@@ -82,7 +99,7 @@ int main()
 			}
 			else{
 				data.back().push_back(bn.variable_and_value_to_integer[{varNumber, word}]);
-				cout << word << bn.dv[varNumber][data.back().back()] << endl;
+				// cout << word << bn.dv[varNumber][data.back().back()] << endl;
 				assert(word == bn.dv[varNumber][data.back().back()]); // s. comment this line later
 			}
 		}
@@ -91,6 +108,17 @@ int main()
 	cout << unknownData.size() << endl;
 	assert(unknownData.size() == numRecords); // s. comment this line later
 	for(auto x:unknownData) cout << x << endl; 
+
+	compute_data_given_weights(bn, data, unknownData, dataWeights);
+	cout << "done" << endl << endl;
+	cout << dataWeights.size() << endl;
+
+	for(auto x:dataWeights){
+		for(auto y:x) cout << y << " ";
+		cout << endl;
+	}
+
+
 
 	// trying gibbs sampling
 
@@ -112,7 +140,7 @@ int main()
 	samples.push_back(current_sample);
 	for(auto x:current_sample) cout << x << " "; cout << endl;
 
-	int num_samples = 10000;
+	int num_samples = 0;
 	for(int i = 0; i < num_samples; i++){
 		int node_to_sample = rand() % bn.total_nodes;
 		vector<float> prob_distribution;
