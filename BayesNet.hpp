@@ -17,7 +17,8 @@ class BayesNet {
 	// vector<vector<double>> cpt
 	vector<string> name;
 	vector<vector<int>> adj;
-	map<int,vector<int>> children;
+	map<int,vector<int>> children; // s. initialze this 
+	map<pair<int,string>, int> variable_and_value_to_integer; // s. initialize this
 	vector<vector<float>> cpt; 
 
 	// // domain size of ith variable : n[i]
@@ -99,6 +100,7 @@ void BayesNet::read_network(string filename){
 					ss2 << ch;
 				}
 				domain[i] = ss2.str();
+				variable_and_value_to_integer[{dv.size(), domain[i]}] = i;
 			}
 			dv.push_back(domain);
 			vector<int> _v;

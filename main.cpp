@@ -1,7 +1,11 @@
 #include "BayesNet.hpp"
 #include<iostream>
 #include<numeric> 
+#include<vector>
 #include<algorithm> 
+#include<sstream>
+#include<fstream>
+#include<cassert>
 using namespace std;
 
 float compute_prob_given_parents(BayesNet& bn, vector<int>& values, int node, int value_of_node){
@@ -18,7 +22,6 @@ float compute_prob_given_parents(BayesNet& bn, vector<int>& values, int node, in
 
 	return bn.cpt[node][index];
 }
-
 
 void compute_dist_gibbs_sampling(BayesNet& bn, vector<int>& values, int node, vector<float>& dist){
 	dist.clear();
@@ -42,10 +45,52 @@ void compute_dist_gibbs_sampling(BayesNet& bn, vector<int>& values, int node, ve
 	}
 }
 
+
 int main()
 {
 	BayesNet bn;
 	bn.read_network("alarm.bif");
+
+	int numRecords = 11100;
+
+	vector<vector<int>> data;
+	vector<int> unknownData; // record number to the unknown field value, the position of the question mark
+
+	// take data input
+	ifstream dataInput("records.dat");
+	string line;
+	vector<int> emptyVector;
+	while(getline(dataInput, line)){
+		data.push_back(emptyVector);
+		stringstream ss(line);
+		string word;
+
+		int varNumber = -1;
+		
+		unknownData.push_back(-1);
+		while(ss >> word){
+			if(word[0] != '"'){
+				continue;
+			}
+			varNumber++;
+			word.pop_back();
+			word.erase(word.begin());
+			if (word == "?"){
+				int x = (data.back()).size();
+				unknownData[unknownData.size() - 1] = x;
+				data.back().push_back(-1);
+			}
+			else{
+				data.back().push_back(bn.variable_and_value_to_integer[{varNumber, word}]);
+				cout << word << bn.dv[varNumber][data.back().back()] << endl;
+				assert(word == bn.dv[varNumber][data.back().back()]); // s. comment this line later
+			}
+		}
+	}
+	
+	cout << unknownData.size() << endl;
+	assert(unknownData.size() == numRecords); // s. comment this line later
+	for(auto x:unknownData) cout << x << endl; 
 
 	// trying gibbs sampling
 
@@ -87,6 +132,8 @@ int main()
 	}
 	
 	// s. samples are ready to be processed further. or are they?
+
+
 
 	return 0;
 
