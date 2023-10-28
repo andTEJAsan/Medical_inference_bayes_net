@@ -140,6 +140,7 @@ void BayesNet::read_network(string filename){
 				cout << "parent_node " << parent_node << "\n";
 				// add child to the out-adj list of 
 				adj[child_node].push_back(parent_node);
+				children[parent_node].push_back(child_node);
 			}
 			// computing size of cpt[child_node] = Pi
 			int cpt_size = nv[child_node];
