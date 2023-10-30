@@ -217,7 +217,7 @@ class BayesNet {
 				weight_of_sample(s,unknown_index[s]);
 			}// computing the weights for every sample
 
-			// init_cpt();
+			init_cpt();
 			for(int s = 0; s < samples.size(); s++)
 			{
 				if(unknown_index[s] == -1)

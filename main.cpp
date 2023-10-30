@@ -16,7 +16,7 @@ int main(int argc , char * argv[])
 	bn.read_records(argv[2]);
 	bn.read_correct(argv[3]);
 
-	bn.EM(200);	
+	bn.EM(stoi(argv[4]));	
 	cout << argv[1] << endl;
 	bn.create_bif(argv[1],"solved_alarm.bif");
 
