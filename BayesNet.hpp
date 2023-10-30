@@ -165,7 +165,7 @@ class BayesNet {
 		}
 		
 	};
-	long double lmda = 0.00165;
+	long double lmda = 0.001;
 	inline void init_cpt()
 	{
 
@@ -217,7 +217,7 @@ class BayesNet {
 				weight_of_sample(s,unknown_index[s]);
 			}// computing the weights for every sample
 
-			init_cpt();
+			// init_cpt();
 			for(int s = 0; s < samples.size(); s++)
 			{
 				if(unknown_index[s] == -1)
@@ -240,6 +240,7 @@ class BayesNet {
 			}
 
 		normalize_cpt();
+		create_bif("alarm.bif","solved_alarm.bif");
 		cout << "Epoch : Error = ";
 		compute_error();
 		cout << "\n";
