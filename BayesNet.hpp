@@ -106,11 +106,7 @@ class BayesNet {
 			int z  = cpt_index;
 			sum_weights[i][cpt_index] += weight;
 			
-			int y = sample[i];
 			cpt_index += sample[i]*base;
-			if(cpt_index < 0){
-				return -1;	
-			}
 			unnormalized[i][cpt_index] += weight;
 		}
 		return 0;
@@ -218,9 +214,7 @@ class BayesNet {
 				cout << epochs+1 << endl;
 				cout.flush();
 				#endif
-			
 				weight_of_sample(s,unknown_index[s]);
-
 			}// computing the weights for every sample
 
 			init_cpt();
@@ -237,6 +231,7 @@ class BayesNet {
 					for(int i = 0; i < nv[node]; i++ )
 					{
 						samples[s][node] = i;
+						
 						count_sample(samples[s],sample_weight[s][i]);
 						
 					}
