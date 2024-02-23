@@ -1,3 +1,5 @@
+#include<iomanip>
+#include<ctime>
 #include<cassert>
 #include<sstream>
 #include<fstream>
@@ -130,7 +132,7 @@ class BayesNet {
 		// index_table[{sample,node}] = {cpt_index,cpt_index+sample[node]*base};
 		return {cpt_index,cpt_index + sample[node]*base};
 	};
-	inline void weight_of_sample(int sample_index, int unkown_index)
+	inline int weight_of_sample(int sample_index, int unkown_index)
 	{
 		// assuming that this will be called only on incomplete samples
 		// compute the probabilities based on unnormalized cpt
@@ -164,15 +166,16 @@ class BayesNet {
 			sample_weight[sample_index][u] = (temp[u]/sum);
 		}
 		
+		return 0;
 	};
 	long double lmda = 0.001;
-	inline void init_cpt()
+	inline void init_cpt(long double lmbda )
 	{
 
 		for(int i = 0 ; i < unnormalized.size(); i++)
 		{
-			fill(begin(unnormalized[i]),end(unnormalized[i]),lmda);
-			fill(sum_weights[i].begin(),sum_weights[i].end(), lmda*nv[i]);
+			fill(begin(unnormalized[i]),end(unnormalized[i]),lmbda);
+			fill(sum_weights[i].begin(),sum_weights[i].end(), lmbda*nv[i]);
 		}
 	};
 	int normalize_cpt(){
@@ -198,26 +201,22 @@ class BayesNet {
 		}
 		cout << sum << "\n";
 	}
-	void EM(int epochs)
+	void EM(double timer)
 	{
-		init_cpt();
-	
-		while(epochs--)
+		double start_time = (double) time(NULL);
+		init_cpt(lmda);
+		normalize_cpt();
+		create_bif("alarm.bif","solved_alarm.bif");
+		while((double) time(NULL) - start_time < timer)
 		{
-			cout << "epoch " << epochs+1 << "\n";  
+			// cout << "epoch " << ++j << "\n";  
 			for(int s = 0 ; s < samples.size(); s++)	
 			{
 				if(unknown_index[s] == -1) continue;
-				#ifdef DEBUG
-				cout << "s = " << s << "\n";
-				cout << unknown_index[s] << "\n";
-				cout << epochs+1 << endl;
-				cout.flush();
-				#endif
 				weight_of_sample(s,unknown_index[s]);
 			}// computing the weights for every sample
 
-			init_cpt();
+			init_cpt(lmda);
 			for(int s = 0; s < samples.size(); s++)
 			{
 				if(unknown_index[s] == -1)
@@ -239,11 +238,13 @@ class BayesNet {
 				}
 			}
 
-		normalize_cpt();
-		create_bif("alarm.bif","solved_alarm.bif");
-		cout << "Epoch : Error = ";
-		compute_error();
-		cout << "\n";
+		if((double) time(NULL) - start_time >= timer/2){
+			normalize_cpt();
+			create_bif("alarm.bif","solved_alarm.bif");
+		}
+		// cout << "Epoch : Error = ";
+		// compute_error();
+		// cout << "\n";
 		}
 	}
 	void print_cpt(){
@@ -429,7 +430,7 @@ void BayesNet::create_bif(string f1, string filename)
 				string paren;
 				ss >> paren >> paren;
 				fout << "\t"<<"table ";
-				for(auto x : cpt[id[paren]]) fout << x << " ";
+				for(auto x : cpt[id[paren]]) fout << fixed << setprecision(4)<<  x << " ";
 				fout << ";\n";
 			}
 		}
